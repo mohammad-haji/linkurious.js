@@ -76,13 +76,81 @@
                 break;
               }
 
-            if (!inserted)
-              selected.push(n);
-          }
+                        if (!inserted)
+                            selected.push(n);
+                    }
+                }
+            return selected;
         }
 
-      return selected;
-    }
+        function getSmallIconsNodes(e) {
+            if (e) {
+                mX = 'x' in e.data ? e.data.x : mX;
+                mY = 'y' in e.data ? e.data.y : mY;
+            }
+            var i,
+                j,
+                l,
+                n,
+                x,
+                y,
+                s,
+                inserted,
+                selected = [],
+                modifiedX = mX + self.width / 2,
+                modifiedY = mY + self.height / 2,
+                point = self.camera.cameraPosition(
+                    mX,
+                    mY
+                ),
+                nodes = self.camera.quadtree.point(
+                    point.x,
+                    point.y
+                );
+            console.log(point);
+            console.log(nodes);
+            // let diffPoints = function (_point, points) {
+            //     return points.map((point, index) => {
+            //         return {index: index, x: Math.abs((_point.x) - (point['read_cam0:x']))};
+            //     }).sort((a, b) => {
+            //         return a.x - b.x
+            //     })
+            // };
+            // console.log('final edge', nodes[diffPoints(point, nodes)[0].index]);
+            if (nodes.length)
+                for (i = 0, l = nodes.length; i < l; i++) {
+                    var node = nodes[i];
+                    if (node.glyphs) {
+                        for (var j = 0; j < node.glyphs.length; j++) {
+                            var n = node.glyphs[j];
+                            if (node.glyphs[j].data) {
+                                x = node.glyphs[j].data['x'];
+                                y = node.glyphs[j].data['y'];
+                                s = node.glyphs[j].data['size'];
+                                if (
+                                    !node.glyphs[j].hidden &&
+                                    Math.sqrt(point.x - x) <= 10 &&
+                                    Math.sqrt(point.y - y) <= 10
+                                ) {
+                                    console.log('yyyyyyyyyyyyyyy');
+                                    // Insert the node:
+                                    inserted = false;
+                                    for (var k = 0; k < selected.length; k++)
+                                        if (node.glyphs[j].data.size > selected[k].size) {
+                                            selected.splice(k, 0, node.glyphs[j]);
+                                            inserted = true;
+                                            break;
+                                        }
+
+                                    if (!inserted)
+                                        selected.push(node.glyphs[j]);
+                                }
+                            }
+                        }
+                    }
+                }
+            return selected;
+        }
 
 
     function getEdges(e) {
